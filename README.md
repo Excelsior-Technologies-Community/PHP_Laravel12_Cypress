@@ -27,7 +27,7 @@ It includes authentication using **Laravel Breeze**, separate testing database c
 
 ---
 
-##  Project Structure
+##  Folder Structure
 
 ```
 PHP_Laravel12_Cypress/
