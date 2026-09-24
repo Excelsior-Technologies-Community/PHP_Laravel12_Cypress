@@ -119,6 +119,103 @@
       "DELETE"
     ]
   },
+  "test-cases.index": {
+    "name": "test-cases.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestCaseController@index",
+    "uri": "test-cases",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "test-cases.create": {
+    "name": "test-cases.create",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestCaseController@create",
+    "uri": "test-cases/create",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "test-cases.store": {
+    "name": "test-cases.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestCaseController@store",
+    "uri": "test-cases",
+    "method": [
+      "POST"
+    ]
+  },
+  "test-cases.show": {
+    "name": "test-cases.show",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestCaseController@show",
+    "uri": "test-cases/{test_case}",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "test-cases.edit": {
+    "name": "test-cases.edit",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestCaseController@edit",
+    "uri": "test-cases/{test_case}/edit",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "test-cases.update": {
+    "name": "test-cases.update",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestCaseController@update",
+    "uri": "test-cases/{test_case}",
+    "method": [
+      "PUT",
+      "PATCH"
+    ]
+  },
+  "test-cases.destroy": {
+    "name": "test-cases.destroy",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestCaseController@destroy",
+    "uri": "test-cases/{test_case}",
+    "method": [
+      "DELETE"
+    ]
+  },
+  "test-runs.dashboard": {
+    "name": "test-runs.dashboard",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestRunController@dashboard",
+    "uri": "test-runs/dashboard",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "test-runs.index": {
+    "name": "test-runs.index",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestRunController@index",
+    "uri": "test-runs",
+    "method": [
+      "GET",
+      "HEAD"
+    ]
+  },
+  "test-runs.store": {
+    "name": "test-runs.store",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\TestRunController@store",
+    "uri": "test-runs",
+    "method": [
+      "POST"
+    ]
+  },
   "register": {
     "name": "register",
     "domain": null,
