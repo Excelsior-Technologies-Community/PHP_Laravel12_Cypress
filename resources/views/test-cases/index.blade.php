@@ -5,20 +5,42 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
-        <h2 class="mb-1">Cypress Test Cases</h2>
+        <h2 class="mb-1">
+            Cypress Test Cases
+        </h2>
+
         <p class="text-muted mb-0">
             Manage automated E2E test cases.
         </p>
     </div>
 
-    <a
-        href="{{ route('test-cases.create') }}"
-        class="btn btn-primary"
-    >
-        + Add Test Case
-    </a>
+    <div class="d-flex gap-2">
+
+        <a
+            href="{{ route('test-cases.statistics') }}"
+            class="btn btn-info"
+        >
+            Statistics
+        </a>
+
+        <a
+            href="{{ route('test-cases.export', request()->query()) }}"
+            class="btn btn-success"
+        >
+            Export CSV
+        </a>
+
+        <a
+            href="{{ route('test-cases.create') }}"
+            class="btn btn-primary"
+        >
+            + Add Test Case
+        </a>
+
+    </div>
 
 </div>
+
 
 <form
     method="GET"
@@ -43,6 +65,7 @@
             >
 
         </div>
+
 
         <div class="col-md-3">
 
@@ -84,6 +107,7 @@
 
         </div>
 
+
         <div class="col-md-3">
 
             <label class="form-label">
@@ -117,6 +141,7 @@
 
         </div>
 
+
         <div class="col-md-1 d-flex align-items-end">
 
             <button class="btn btn-dark w-100">
@@ -129,144 +154,306 @@
 
 </form>
 
-<div class="card shadow-sm">
 
-    <div class="table-responsive">
+<form
+    method="POST"
+    action="{{ route('test-cases.bulk-destroy') }}"
+    id="bulkDeleteForm"
+>
 
-        <table class="table table-hover mb-0">
+    @csrf
+    @method('DELETE')
 
-            <thead class="table-dark">
 
-                <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Module</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                    <th>Actions</th>
-                </tr>
+    <div class="card shadow-sm">
 
-            </thead>
+        <div class="card-header d-flex justify-content-between align-items-center">
 
-            <tbody>
+            <strong>
+                Test Cases
+            </strong>
 
-            @forelse($testCases as $testCase)
+            <button
+                type="submit"
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Delete selected test cases?')"
+            >
+                Delete Selected
+            </button>
 
-                <tr>
+        </div>
 
-                    <td>
-                        {{ $testCases->firstItem() + $loop->index }}
-                    </td>
 
-                    <td>
-                        <strong>
-                            {{ $testCase->title }}
-                        </strong>
-                    </td>
+        <div class="table-responsive">
 
-                    <td>
-                        {{ $testCase->module ?: '—' }}
-                    </td>
+            <table class="table table-hover mb-0">
 
-                    <td>
+                <thead class="table-dark">
 
-                        @if($testCase->priority === 'high')
-                            <span class="badge bg-danger">
-                                High
-                            </span>
-                        @elseif($testCase->priority === 'medium')
-                            <span class="badge bg-warning text-dark">
-                                Medium
-                            </span>
-                        @else
-                            <span class="badge bg-success">
-                                Low
-                            </span>
-                        @endif
+                    <tr>
 
-                    </td>
-
-                    <td>
-
-                        @if($testCase->status === 'active')
-                            <span class="badge bg-success">
-                                Active
-                            </span>
-                        @else
-                            <span class="badge bg-secondary">
-                                Inactive
-                            </span>
-                        @endif
-
-                    </td>
-
-                    <td>
-                        {{ $testCase->created_at->format('d M Y') }}
-                    </td>
-
-                    <td>
-
-                        <a
-                            href="{{ route('test-cases.show', $testCase) }}"
-                            class="btn btn-sm btn-info"
-                        >
-                            View
-                        </a>
-
-                        <a
-                            href="{{ route('test-cases.edit', $testCase) }}"
-                            class="btn btn-sm btn-primary"
-                        >
-                            Edit
-                        </a>
-
-                        <form
-                            action="{{ route('test-cases.destroy', $testCase) }}"
-                            method="POST"
-                            class="d-inline"
-                        >
-
-                            @csrf
-                            @method('DELETE')
-
-                            <button
-                                type="submit"
-                                class="btn btn-sm btn-danger"
-                                onclick="return confirm('Delete this test case?')"
+                        <th>
+                            <input
+                                type="checkbox"
+                                id="selectAll"
                             >
-                                Delete
-                            </button>
+                        </th>
 
-                        </form>
+                        <th>#</th>
 
-                    </td>
+                        <th>Title</th>
 
-                </tr>
+                        <th>Module</th>
 
-            @empty
+                        <th>Priority</th>
 
-                <tr>
-                    <td
-                        colspan="7"
-                        class="text-center py-4 text-muted"
-                    >
-                        No test cases found.
-                    </td>
-                </tr>
+                        <th>Status</th>
 
-            @endforelse
+                        <th>Created</th>
 
-            </tbody>
+                        <th>Actions</th>
 
-        </table>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                @forelse($testCases as $testCase)
+
+                    <tr>
+
+                        <td>
+
+                            <input
+                                type="checkbox"
+                                name="ids[]"
+                                value="{{ $testCase->id }}"
+                                class="case-checkbox"
+                            >
+
+                        </td>
+
+
+                        <td>
+                            {{ $testCases->firstItem() + $loop->index }}
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{ $testCase->title }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ $testCase->module ?: '—' }}
+                        </td>
+
+
+                        <td>
+
+                            @if($testCase->priority === 'high')
+
+                                <span class="badge bg-danger">
+                                    High
+                                </span>
+
+                            @elseif($testCase->priority === 'medium')
+
+                                <span class="badge bg-warning text-dark">
+                                    Medium
+                                </span>
+
+                            @else
+
+                                <span class="badge bg-success">
+                                    Low
+                                </span>
+
+                            @endif
+
+                        </td>
+
+
+                        <td>
+
+                            @if($testCase->status === 'active')
+
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+
+                            @else
+
+                                <span class="badge bg-secondary">
+                                    Inactive
+                                </span>
+
+                            @endif
+
+                        </td>
+
+
+                        <td>
+                            {{ $testCase->created_at?->format('d M Y') }}
+                        </td>
+
+
+                        <td>
+
+                            <div class="d-flex gap-1">
+
+                                <a
+                                    href="{{ route(
+                                        'test-cases.show',
+                                        $testCase
+                                    ) }}"
+                                    class="btn btn-sm btn-info"
+                                >
+                                    View
+                                </a>
+
+
+                                <a
+                                    href="{{ route(
+                                        'test-cases.edit',
+                                        $testCase
+                                    ) }}"
+                                    class="btn btn-sm btn-primary"
+                                >
+                                    Edit
+                                </a>
+
+
+                                <form
+                                    action="{{ route(
+                                        'test-cases.duplicate',
+                                        $testCase
+                                    ) }}"
+                                    method="POST"
+                                    class="d-inline"
+                                >
+
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-warning"
+                                    >
+                                        Clone
+                                    </button>
+
+                                </form>
+
+
+                                <form
+                                    action="{{ route(
+                                        'test-cases.destroy',
+                                        $testCase
+                                    ) }}"
+                                    method="POST"
+                                    class="d-inline"
+                                >
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm(
+                                            'Delete this test case?'
+                                        )"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="text-center py-4 text-muted"
+                        >
+                            No test cases found.
+                        </td>
+
+                    </tr>
+
+                @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
-</div>
+</form>
 
-<div class="mt-3">
-    {{ $testCases->links() }}
-</div>
+
+{{-- Numeric Pagination Only --}}
+@if($testCases->hasPages())
+
+    <div class="d-flex justify-content-center mt-4">
+
+        <ul class="pagination">
+
+            {{-- Page Numbers Only --}}
+            @for($page = 1; $page <= $testCases->lastPage(); $page++)
+
+                <li
+                    class="page-item {{ $page == $testCases->currentPage() ? 'active' : '' }}"
+                >
+
+                    <a
+                        class="page-link"
+                        href="{{ $testCases->appends(request()->query())->url($page) }}"
+                    >
+                        {{ $page }}
+                    </a>
+
+                </li>
+
+            @endfor
+
+        </ul>
+
+    </div>
+
+@endif
+
+
+<script>
+
+document.getElementById('selectAll')
+    ?.addEventListener('change', function () {
+
+        document
+            .querySelectorAll('.case-checkbox')
+            .forEach(function (checkbox) {
+
+                checkbox.checked = this.checked;
+
+            }, this);
+
+    });
+
+</script>
 
 @endsection
