@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+
     <meta charset="utf-8">
 
     <meta
@@ -14,18 +15,25 @@
         content="{{ csrf_token() }}"
     >
 
-    <title>Cypress Test Management</title>
+    <title>
+        Cypress Test Management
+    </title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
+
 </head>
+
 
 <body class="bg-light">
 
+
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
+
         <a
             href="{{ route('dashboard') }}"
             class="navbar-brand"
@@ -33,13 +41,16 @@
             Cypress Testing
         </a>
 
-        <div>
+
+        <div class="d-flex gap-1">
+
             <a
                 href="{{ route('dashboard') }}"
                 class="btn btn-outline-light btn-sm"
             >
                 Dashboard
             </a>
+
 
             <a
                 href="{{ route('test-cases.index') }}"
@@ -48,6 +59,15 @@
                 Test Cases
             </a>
 
+
+            <a
+                href="{{ route('test-cases.statistics') }}"
+                class="btn btn-outline-light btn-sm"
+            >
+                Case Stats
+            </a>
+
+
             <a
                 href="{{ route('test-runs.index') }}"
                 class="btn btn-outline-light btn-sm"
@@ -55,33 +75,86 @@
                 Test Runs
             </a>
 
+
             <a
                 href="{{ route('test-runs.dashboard') }}"
                 class="btn btn-outline-light btn-sm"
             >
                 Analytics
             </a>
+
         </div>
+
     </div>
+
 </nav>
+
 
 <div class="container py-4">
 
+
     @if(session('success'))
-        <div class="alert alert-success">
+
+        <div class="alert alert-success alert-dismissible fade show">
+
             {{ session('success') }}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+            ></button>
+
         </div>
+
     @endif
 
+
     @if(session('error'))
+
         <div class="alert alert-danger">
+
             {{ session('error') }}
+
         </div>
+
     @endif
+
+
+    @if($errors->any())
+
+        <div class="alert alert-danger">
+
+            <strong>
+                Please fix the following:
+            </strong>
+
+            <ul class="mb-0">
+
+                @foreach($errors->all() as $error)
+
+                    <li>
+                        {{ $error }}
+                    </li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+    @endif
+
 
     @yield('content')
 
 </div>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
 
 </body>
 

@@ -5,13 +5,15 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
+
         <h2 class="mb-1">
             Cypress Test Analytics
         </h2>
 
         <p class="text-muted mb-0">
-            Test execution statistics and recent Cypress activity.
+            Test execution statistics and Cypress activity.
         </p>
+
     </div>
 
     <a
@@ -23,11 +25,13 @@
 
 </div>
 
+
 <div class="row g-4 mb-4">
 
     <div class="col-md-3">
 
         <div class="card shadow-sm border-0">
+
             <div class="card-body">
 
                 <p class="text-muted mb-1">
@@ -39,13 +43,16 @@
                 </h2>
 
             </div>
+
         </div>
 
     </div>
 
+
     <div class="col-md-3">
 
         <div class="card shadow-sm border-0">
+
             <div class="card-body">
 
                 <p class="text-muted mb-1">
@@ -57,13 +64,16 @@
                 </h2>
 
             </div>
+
         </div>
 
     </div>
 
+
     <div class="col-md-3">
 
         <div class="card shadow-sm border-0">
+
             <div class="card-body">
 
                 <p class="text-muted mb-1">
@@ -75,13 +85,16 @@
                 </h2>
 
             </div>
+
         </div>
 
     </div>
 
+
     <div class="col-md-3">
 
         <div class="card shadow-sm border-0">
+
             <div class="card-body">
 
                 <p class="text-muted mb-1">
@@ -93,15 +106,17 @@
                 </h2>
 
             </div>
+
         </div>
 
     </div>
 
 </div>
 
+
 <div class="row g-4 mb-4">
 
-    <div class="col-md-6">
+    <div class="col-md-4">
 
         <div class="card shadow-sm">
 
@@ -137,7 +152,10 @@
                 <p class="mb-0">
                     Average Duration:
                     <strong>
-                        {{ $averageDuration ? round($averageDuration, 2) : 0 }} ms
+                        {{ $averageDuration
+                            ? round($averageDuration, 2)
+                            : 0
+                        }} ms
                     </strong>
                 </p>
 
@@ -147,7 +165,51 @@
 
     </div>
 
-    <div class="col-md-6">
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h5>
+                    Duration Analytics
+                </h5>
+
+                <hr>
+
+                <p>
+                    Fastest:
+                    <strong class="text-success">
+                        {{ $minimumDuration ?? 0 }} ms
+                    </strong>
+                </p>
+
+                <p>
+                    Average:
+                    <strong>
+                        {{ $averageDuration
+                            ? round($averageDuration, 2)
+                            : 0
+                        }} ms
+                    </strong>
+                </p>
+
+                <p class="mb-0">
+                    Slowest:
+                    <strong class="text-danger">
+                        {{ $maximumDuration ?? 0 }} ms
+                    </strong>
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
 
         <div class="card shadow-sm">
 
@@ -160,8 +222,8 @@
                 <hr>
 
                 <p class="text-muted">
-                    This dashboard displays the results of automated
-                    Cypress E2E tests stored by the Laravel application.
+                    Automated Cypress E2E execution
+                    results stored by Laravel.
                 </p>
 
                 <a
@@ -179,6 +241,187 @@
 
 </div>
 
+
+<div class="row g-4 mb-4">
+
+    <!-- Functionality 8 -->
+
+    <div class="col-md-6">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-danger text-white">
+                Top Failed Specifications
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Specification
+                            </th>
+
+                            <th>
+                                Failures
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    @forelse($topFailedSpecs as $spec)
+
+                        <tr>
+
+                            <td>
+                                {{ $spec->spec_name }}
+                            </td>
+
+                            <td>
+
+                                <span class="badge bg-danger">
+                                    {{ $spec->failed_count }}
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="2"
+                                class="text-center text-muted py-3"
+                            >
+                                No failed specifications.
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Functionality 9 -->
+
+    <div class="col-md-6">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-warning">
+                Slowest Test Runs
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Test
+                            </th>
+
+                            <th>
+                                Duration
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    @forelse($slowestRuns as $run)
+
+                        <tr>
+
+                            <td>
+                                {{ $run->test_name ?: $run->spec_name }}
+                            </td>
+
+                            <td>
+                                {{ $run->duration }} ms
+                            </td>
+
+                            <td>
+
+                                @if($run->status === 'passed')
+
+                                    <span class="badge bg-success">
+                                        Passed
+                                    </span>
+
+                                @elseif($run->status === 'failed')
+
+                                    <span class="badge bg-danger">
+                                        Failed
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-secondary">
+                                        Skipped
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="3"
+                                class="text-center text-muted py-3"
+                            >
+                                No duration data available.
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 <div class="card shadow-sm">
 
     <div class="card-header bg-dark text-white">
@@ -192,12 +435,14 @@
             <thead>
 
                 <tr>
+
                     <th>Spec</th>
                     <th>Test</th>
                     <th>Status</th>
                     <th>Browser</th>
                     <th>Duration</th>
                     <th>Executed</th>
+
                 </tr>
 
             </thead>
@@ -249,7 +494,9 @@
                     </td>
 
                     <td>
-                        {{ $run->executed_at?->format('d M Y H:i') }}
+                        {{ $run->executed_at?->format(
+                            'd M Y H:i'
+                        ) }}
                     </td>
 
                 </tr>
