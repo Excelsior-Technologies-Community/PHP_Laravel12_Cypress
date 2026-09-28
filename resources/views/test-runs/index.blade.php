@@ -11,19 +11,31 @@
         </h2>
 
         <p class="text-muted mb-0">
-            Search and filter previous automated test executions.
+            Search, filter and manage previous test executions.
         </p>
 
     </div>
 
-    <a
-        href="{{ route('test-runs.dashboard') }}"
-        class="btn btn-dark"
-    >
-        Analytics
-    </a>
+    <div class="d-flex gap-2">
+
+        <a
+            href="{{ route('test-runs.dashboard') }}"
+            class="btn btn-dark"
+        >
+            Analytics
+        </a>
+
+        <a
+            href="{{ route('test-runs.export', request()->query()) }}"
+            class="btn btn-success"
+        >
+            Export CSV
+        </a>
+
+    </div>
 
 </div>
+
 
 <form
     method="GET"
@@ -33,7 +45,7 @@
 
     <div class="row g-3">
 
-        <div class="col-md-7">
+        <div class="col-md-4">
 
             <label class="form-label">
                 Search
@@ -49,7 +61,8 @@
 
         </div>
 
-        <div class="col-md-3">
+
+        <div class="col-md-2">
 
             <label class="form-label">
                 Status
@@ -89,6 +102,39 @@
 
         </div>
 
+
+        <div class="col-md-2">
+
+            <label class="form-label">
+                From
+            </label>
+
+            <input
+                type="date"
+                name="date_from"
+                class="form-control"
+                value="{{ request('date_from') }}"
+            >
+
+        </div>
+
+
+        <div class="col-md-2">
+
+            <label class="form-label">
+                To
+            </label>
+
+            <input
+                type="date"
+                name="date_to"
+                class="form-control"
+                value="{{ request('date_to') }}"
+            >
+
+        </div>
+
+
         <div class="col-md-2 d-flex align-items-end">
 
             <button class="btn btn-primary w-100">
@@ -101,125 +147,243 @@
 
 </form>
 
-<div class="card shadow-sm">
 
-    <div class="table-responsive">
+<form
+    method="POST"
+    action="{{ route('test-runs.bulk-destroy') }}"
+    id="bulkRunDeleteForm"
+>
 
-        <table class="table table-hover mb-0">
+    @csrf
+    @method('DELETE')
 
-            <thead class="table-dark">
 
-                <tr>
-                    <th>#</th>
-                    <th>Spec</th>
-                    <th>Test</th>
-                    <th>Status</th>
-                    <th>Browser</th>
-                    <th>Duration</th>
-                    <th>Executed</th>
-                </tr>
+    <div class="card shadow-sm">
 
-            </thead>
+        <div class="card-header d-flex justify-content-between">
 
-            <tbody>
+            <strong>
+                Test Runs
+            </strong>
 
-            @forelse($testRuns as $run)
+            <button
+                type="submit"
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Delete selected test runs?')"
+            >
+                Delete Selected
+            </button>
 
-                <tr>
+        </div>
 
-                    <td>
-                        {{ $testRuns->firstItem() + $loop->index }}
-                    </td>
 
-                    <td>
-                        {{ $run->spec_name }}
-                    </td>
+        <div class="table-responsive">
 
-                    <td>
-                        {{ $run->test_name ?: '—' }}
-                    </td>
+            <table class="table table-hover mb-0">
 
-                    <td>
-
-                        @if($run->status === 'passed')
-
-                            <span class="badge bg-success">
-                                Passed
-                            </span>
-
-                        @elseif($run->status === 'failed')
-
-                            <span class="badge bg-danger">
-                                Failed
-                            </span>
-
-                        @else
-
-                            <span class="badge bg-secondary">
-                                Skipped
-                            </span>
-
-                        @endif
-
-                    </td>
-
-                    <td>
-                        {{ $run->browser ?: '—' }}
-                    </td>
-
-                    <td>
-                        {{ $run->duration ?? 0 }} ms
-                    </td>
-
-                    <td>
-                        {{ $run->executed_at?->format('d M Y H:i:s') }}
-                    </td>
-
-                </tr>
-
-                @if($run->error_message)
+                <thead class="table-dark">
 
                     <tr>
 
-                        <td></td>
+                        <th>
+                            <input
+                                type="checkbox"
+                                id="selectAllRuns"
+                            >
+                        </th>
 
-                        <td
-                            colspan="6"
-                            class="text-danger small"
-                        >
-                            <strong>Failure:</strong>
-                            {{ $run->error_message }}
+                        <th>#</th>
+
+                        <th>Spec</th>
+
+                        <th>Test</th>
+
+                        <th>Status</th>
+
+                        <th>Browser</th>
+
+                        <th>Duration</th>
+
+                        <th>Executed</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                @forelse($testRuns as $run)
+
+                    <tr>
+
+                        <td>
+
+                            <input
+                                type="checkbox"
+                                name="ids[]"
+                                value="{{ $run->id }}"
+                                class="run-checkbox"
+                            >
+
+                        </td>
+
+
+                        <td>
+                            {{ $testRuns->firstItem() + $loop->index }}
+                        </td>
+
+
+                        <td>
+                            {{ $run->spec_name }}
+                        </td>
+
+
+                        <td>
+                            {{ $run->test_name ?: '—' }}
+                        </td>
+
+
+                        <td>
+
+                            @if($run->status === 'passed')
+
+                                <span class="badge bg-success">
+                                    Passed
+                                </span>
+
+                            @elseif($run->status === 'failed')
+
+                                <span class="badge bg-danger">
+                                    Failed
+                                </span>
+
+                            @else
+
+                                <span class="badge bg-secondary">
+                                    Skipped
+                                </span>
+
+                            @endif
+
+                        </td>
+
+
+                        <td>
+                            {{ $run->browser ?: '—' }}
+                        </td>
+
+
+                        <td>
+                            {{ $run->duration ?? 0 }} ms
+                        </td>
+
+
+                        <td>
+                            {{ $run->executed_at?->format(
+                                'd M Y H:i:s'
+                            ) }}
                         </td>
 
                     </tr>
 
-                @endif
 
-            @empty
+                    @if($run->error_message)
 
-                <tr>
+                        <tr>
 
-                    <td
-                        colspan="7"
-                        class="text-center py-4 text-muted"
-                    >
-                        No test runs found.
-                    </td>
+                            <td></td>
 
-                </tr>
+                            <td
+                                colspan="7"
+                                class="text-danger small"
+                            >
 
-            @endforelse
+                                <strong>
+                                    Failure:
+                                </strong>
 
-            </tbody>
+                                {{ $run->error_message }}
 
-        </table>
+                            </td>
+
+                        </tr>
+
+                    @endif
+
+                @empty
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="text-center py-4 text-muted"
+                        >
+                            No test runs found.
+                        </td>
+
+                    </tr>
+
+                @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
-</div>
+</form>
 
-<div class="mt-3">
-    {{ $testRuns->links() }}
-</div>
+
+{{-- Numeric Pagination Only --}}
+@if($testRuns->hasPages())
+
+    <div class="d-flex justify-content-center mt-4">
+
+        <ul class="pagination">
+
+            {{-- Page Numbers Only --}}
+            @for($page = 1; $page <= $testRuns->lastPage(); $page++)
+
+                <li
+                    class="page-item {{ $page == $testRuns->currentPage() ? 'active' : '' }}"
+                >
+
+                    <a
+                        class="page-link"
+                        href="{{ $testRuns->appends(request()->query())->url($page) }}"
+                    >
+                        {{ $page }}
+                    </a>
+
+                </li>
+
+            @endfor
+
+        </ul>
+
+    </div>
+
+@endif
+
+
+<script>
+
+document.getElementById('selectAllRuns')
+    ?.addEventListener('change', function () {
+
+        document
+            .querySelectorAll('.run-checkbox')
+            .forEach(function (checkbox) {
+
+                checkbox.checked = this.checked;
+
+            }, this);
+
+    });
+
+</script>
 
 @endsection
