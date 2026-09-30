@@ -67,6 +67,12 @@
                 Case Stats
             </a>
 
+            <a
+                href="{{ route('cypress.spec-studio') }}"
+                class="btn btn-outline-warning btn-sm fw-bold"
+            >
+                ⚡ Spec Studio
+            </a>
 
             <a
                 href="{{ route('test-runs.index') }}"
@@ -81,6 +87,13 @@
                 class="btn btn-outline-light btn-sm"
             >
                 Analytics
+            </a>
+
+            <a
+                href="{{ route('test-runs.analytics') }}"
+                class="btn btn-outline-info btn-sm fw-bold"
+            >
+                📊 Suite Health
             </a>
 
         </div>
