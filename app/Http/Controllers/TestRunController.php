@@ -310,4 +310,64 @@ class TestRunController extends Controller
             str_replace('"', '""', $value) .
             '"';
     }
+
+    /**
+     * Test Suite Analytics & Flaky Test Tracker.
+     */
+    public function analytics(Request $request): View
+    {
+        $totalRuns = TestRun::count();
+        $passedRuns = TestRun::where('status', 'passed')->count();
+        $failedRuns = TestRun::where('status', 'failed')->count();
+        $skippedRuns = TestRun::where('status', 'skipped')->count();
+
+        $passRate = $totalRuns > 0 ? round(($passedRuns / $totalRuns) * 100, 1) : 0;
+        $failRate = $totalRuns > 0 ? round(($failedRuns / $totalRuns) * 100, 1) : 0;
+        $skipRate = $totalRuns > 0 ? round(($skippedRuns / $totalRuns) * 100, 1) : 0;
+
+        $avgDuration = TestRun::whereNotNull('duration')->avg('duration') ?? 0;
+        $maxDuration = TestRun::whereNotNull('duration')->max('duration') ?? 0;
+        $minDuration = TestRun::whereNotNull('duration')->min('duration') ?? 0;
+
+        // Flaky Test Detection: Specs with both passed and failed records
+        $flakySpecs = TestRun::selectRaw('spec_name, 
+                SUM(CASE WHEN status = "passed" THEN 1 ELSE 0 END) as pass_count,
+                SUM(CASE WHEN status = "failed" THEN 1 ELSE 0 END) as fail_count,
+                COUNT(*) as total_count,
+                AVG(duration) as avg_duration')
+            ->groupBy('spec_name')
+            ->havingRaw('SUM(CASE WHEN status = "passed" THEN 1 ELSE 0 END) > 0 AND SUM(CASE WHEN status = "failed" THEN 1 ELSE 0 END) > 0')
+            ->orderByRaw('(SUM(CASE WHEN status = "failed" THEN 1 ELSE 0 END) / COUNT(*)) DESC')
+            ->get();
+
+        // Duration breakdown per spec
+        $specDurations = TestRun::selectRaw('spec_name, AVG(duration) as avg_dur, MAX(duration) as max_dur, COUNT(*) as run_count')
+            ->whereNotNull('duration')
+            ->groupBy('spec_name')
+            ->orderByDesc('avg_dur')
+            ->limit(10)
+            ->get();
+
+        // Browser distribution
+        $browserStats = TestRun::selectRaw('browser, COUNT(*) as count')
+            ->groupBy('browser')
+            ->orderByDesc('count')
+            ->get();
+
+        return view('test-runs.analytics', compact(
+            'totalRuns',
+            'passedRuns',
+            'failedRuns',
+            'skippedRuns',
+            'passRate',
+            'failRate',
+            'skipRate',
+            'avgDuration',
+            'maxDuration',
+            'minDuration',
+            'flakySpecs',
+            'specDurations',
+            'browserStats'
+        ));
+    }
 }

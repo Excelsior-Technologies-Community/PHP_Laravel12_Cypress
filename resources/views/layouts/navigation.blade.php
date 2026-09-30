@@ -42,6 +42,14 @@
                         {{ __('Case Statistics') }}
                     </x-nav-link>
 
+                    <!-- Spec Generator Studio -->
+                    <x-nav-link
+                        :href="route('cypress.spec-studio')"
+                        :active="request()->routeIs('cypress.spec-studio')"
+                    >
+                        {{ __('⚡ Spec Studio') }}
+                    </x-nav-link>
+
                     <!-- Test Runs -->
                     <x-nav-link
                         :href="route('test-runs.index')"
@@ -56,6 +64,14 @@
                         :active="request()->routeIs('test-runs.dashboard')"
                     >
                         {{ __('Cypress Analytics') }}
+                    </x-nav-link>
+
+                    <!-- Test Suite Analytics & Flaky Tracker -->
+                    <x-nav-link
+                        :href="route('test-runs.analytics')"
+                        :active="request()->routeIs('test-runs.analytics')"
+                    >
+                        {{ __('📊 Suite Health') }}
                     </x-nav-link>
 
                 </div>

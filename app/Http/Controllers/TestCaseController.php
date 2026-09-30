@@ -273,4 +273,106 @@ class TestCaseController extends Controller
 
         return '"' . str_replace('"', '""', $value) . '"';
     }
+
+    /**
+     * Cypress Spec Studio view.
+     */
+    public function specStudio(Request $request): View
+    {
+        $testCases = TestCase::where('status', 'active')->orderBy('title')->get();
+        $selectedCase = null;
+        $generatedCode = '';
+
+        if ($request->filled('test_case_id')) {
+            $selectedCase = TestCase::find($request->test_case_id);
+        } else {
+            $selectedCase = $testCases->first();
+        }
+
+        if ($selectedCase) {
+            $generatedCode = $this->buildCypressCode($selectedCase);
+        }
+
+        return view('test-cases.spec_studio', compact('testCases', 'selectedCase', 'generatedCode'));
+    }
+
+    /**
+     * Generate spec code via AJAX/View.
+     */
+    public function generateSpec(TestCase $testCase): View
+    {
+        $testCases = TestCase::where('status', 'active')->orderBy('title')->get();
+        $selectedCase = $testCase;
+        $generatedCode = $this->buildCypressCode($testCase);
+
+        return view('test-cases.spec_studio', compact('testCases', 'selectedCase', 'generatedCode'));
+    }
+
+    /**
+     * Download .cy.js file.
+     */
+    public function downloadSpec(TestCase $testCase): Response
+    {
+        $code = $this->buildCypressCode($testCase);
+        $filename = \Illuminate\Support\Str::slug($testCase->title) . '.cy.js';
+
+        return response($code)
+            ->header('Content-Type', 'application/javascript')
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+    }
+
+    /**
+     * Build Cypress E2E JS Spec code for a test case.
+     */
+    public function buildCypressCode(TestCase $testCase): string
+    {
+        $module = $testCase->module ?: 'General';
+        $descLines = array_filter(explode("\n", $testCase->description ?? ''));
+
+        $spec = "/**\n";
+        $spec .= " * Auto-Generated Cypress E2E Spec Code\n";
+        $spec .= " * Test Case ID: {$testCase->id}\n";
+        $spec .= " * Title: {$testCase->title}\n";
+        $spec .= " * Module: {$module}\n";
+        $spec .= " * Priority: {$testCase->priority}\n";
+        $spec .= " */\n\n";
+
+        $spec .= "describe('Module: " . addslashes($module) . " - " . addslashes($testCase->title) . "', () => {\n";
+        $spec .= "    beforeEach(() => {\n";
+        $spec .= "        // Reset viewport for standard desktop E2E run\n";
+        $spec .= "        cy.viewport(1280, 720);\n";
+        $spec .= "    });\n\n";
+
+        $spec .= "    it('should successfully execute E2E steps for: " . addslashes($testCase->title) . "', () => {\n";
+        $moduleSlug = strtolower(str_replace(' ', '-', $module));
+        $spec .= "        // Step 1: Visit target module route\n";
+        $spec .= "        cy.visit('/{$moduleSlug}');\n";
+        $spec .= "        cy.url().should('include', '/{$moduleSlug}');\n\n";
+
+        if (!empty($descLines)) {
+            $spec .= "        // Executing custom test case steps:\n";
+            foreach ($descLines as $idx => $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+                $stepNum = $idx + 1;
+                $spec .= "        // Step {$stepNum}: " . addslashes($line) . "\n";
+                if (str_contains(strtolower($line), 'click') || str_contains(strtolower($line), 'button')) {
+                    $spec .= "        cy.contains('" . addslashes($line) . "').click();\n";
+                } elseif (str_contains(strtolower($line), 'input') || str_contains(strtolower($line), 'fill') || str_contains(strtolower($line), 'enter')) {
+                    $spec .= "        cy.get('input[type=\"text\"]').first().type('" . addslashes($line) . "');\n";
+                } else {
+                    $spec .= "        cy.contains('" . addslashes($line) . "').should('exist');\n";
+                }
+            }
+        } else {
+            $spec .= "        // Default verification assertion\n";
+            $spec .= "        cy.get('body').should('be.visible');\n";
+            $spec .= "        cy.contains('" . addslashes($testCase->title) . "').should('exist');\n";
+        }
+
+        $spec .= "    });\n";
+        $spec .= "});\n";
+
+        return $spec;
+    }
 }
