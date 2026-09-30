@@ -159,6 +159,50 @@ Route::middleware('auth')->group(function () {
             'export',
         ]
     )->name('test-runs.export');
+
+    /*
+    |--------------------------------------------------------------------------
+    | NEW: Cypress Spec Generator & Exporter Studio
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/cypress-spec-generator',
+        [
+            TestCaseController::class,
+            'specStudio',
+        ]
+    )->name('cypress.spec-studio');
+
+    Route::get(
+        '/test-cases/{testCase}/generate-spec',
+        [
+            TestCaseController::class,
+            'generateSpec',
+        ]
+    )->name('test-cases.generate-spec');
+
+    Route::get(
+        '/test-cases/{testCase}/download-spec',
+        [
+            TestCaseController::class,
+            'downloadSpec',
+        ]
+    )->name('test-cases.download-spec');
+
+    /*
+    |--------------------------------------------------------------------------
+    | NEW: Test Suite Analytics & Flaky Test Tracker
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/test-analytics',
+        [
+            TestRunController::class,
+            'analytics',
+        ]
+    )->name('test-runs.analytics');
 });
 
 require __DIR__ . '/auth.php';
